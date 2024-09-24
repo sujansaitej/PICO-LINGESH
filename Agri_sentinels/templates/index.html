@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Generation Plant Wellness Tracking System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 2.5em;
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .team-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .team-info p {
+            font-size: 1.2em;
+            color: #666;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        input[type="text"] {
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            width: 100%;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #e8f5e9;
+            border: 1px solid #d0e9c6;
+            border-radius: 5px;
+            font-size: 1.1em;
+            color: #2c6b2f;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 0.9em;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Generative AI based Plant Wellness Determinator</h1>
+        <div class="team-info">
+            <p><strong>Project Title:</strong> Next Generation Plant Wellness Tracking System</p>
+            <p><strong>Team Members:</strong></p>
+            <p>Ameera Alreiyan J (Team Lead) - 12 - A</p>
+            <p>Vaishali C - 12 - B</p>
+            <p>Sandhiya S - 12 - B</p>
+        </div>
+        <form id="plantForm">
+            <label for="soil_type">Soil Type:</label>
+            <input type="text" id="soil_type" name="soil_type" required>
+            
+            <label for="plant_type">Plant Type:</label>
+            <input type="text" id="plant_type" name="plant_type" required>
+            
+            <input type="submit" value="Submit">
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+    <footer>
+        <p>&copy; 2024 Next Generation Plant Wellness Tracking System. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Fetch the latest sensor data from the server
+        function fetchLatestSensorData() {
+            return fetch('/get_latest_sensor_data')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        console.error(data.error);
+                        return null;
+                    }
+                    return data;
+                })
+                .catch(error => {
+                    console.error("Error fetching sensor data:", error);
+                    return null;
+                });
+        }
+    
+        // Handle form submission
+        document.getElementById("plantForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+    
+            // Get user inputs
+            const soilType = document.getElementById("soil_type").value;
+            const plantType = document.getElementById("plant_type").value;
+    
+            // Fetch the latest sensor data
+            const sensorData = await fetchLatestSensorData();
+            if (!sensorData) {
+                document.getElementById("result").innerHTML = `<p style="color: red;">Error: Failed to fetch sensor data.</p>`;
+                return;
+            }
+    
+            // Send POST request with dynamic sensor data and user inputs
+            fetch("/submit", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    soil_type: soilType,
+                    plant_type: plantType,
+                    sensor_data: sensorData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById("result");
+                if (data.error) {
+                    resultDiv.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                } else {
+                    resultDiv.innerHTML = `<h2>Plant Health Report:</h2>
+                                           <p><strong>Status:</strong> ${data.health_status}</p>
+                                           <p><strong>Recommendations:</strong> ${data.recommendations}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                document.getElementById("result").innerHTML = `<p style="color: red;">Internal Server Error</p>`;
+            });
+        });
+    </script>
+    
+</body>
+</html>
