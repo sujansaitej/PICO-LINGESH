@@ -1,8 +1,8 @@
 import network
-import urequests
+import requests
 import time
 import json
-from machine import Pin, ADC
+#from machine import Pin, ADC
 import dht
 
 # Set up the sensors
@@ -75,7 +75,7 @@ def post_data(sensor_data):
 
         # Send POST request to the Flask server
         headers = {'Content-Type': 'application/json'}
-        response = urequests.post(server_url, data=json.dumps(payload), headers=headers)
+        response = requests.post(server_url, data=json.dumps(payload), headers=headers)
         print("Response Code:", response.status_code)
         print("Response Text:", response.text)
         response.close()
